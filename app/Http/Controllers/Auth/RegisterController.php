@@ -48,12 +48,23 @@ class RegisterController extends Controller
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
-    {
-        return Validator::make($data, [
+    {   
+        $messages = [
+            'email.required' => 'pls gib email',
+            'password.required' => 'Please enter a password.',
+            'password.confirmed' => 'Passwords must match.',
+            'password.regex' => 'Password does not conform to the Password Policy.
+            Password must be at least (10) characters long, which consist of at least (1) upper case letter, 1 lower case letter, 1 number and 1 special character.
+            Password must not contain the username, first or last name
+            Password must not contain dictionary words.
+            Password must not be the same with the last 6 previous passwords.'
+        ];
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+            'password' => ['required', 'string', 'min:10', 'confirmed', 'regex:/^((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\\w\\s])).*$/'],
+        ];
+        return Validator::make($data, $rules, $messages);
     }
 
     /**
