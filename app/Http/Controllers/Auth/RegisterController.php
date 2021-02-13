@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Rules\PasswordDicCheck;
+use App\Rules\PasswordNameCheck;
+use App\Rules\PasswordRegex;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -49,22 +52,17 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {   
-        $messages = [
-            'email.required' => 'pls gib email',
-            'password.required' => 'Please enter a password.',
-            'password.confirmed' => 'Passwords must match.',
-            'password.regex' => 'Password does not conform to the Password Policy.
-            Password must be at least (10) characters long, which consist of at least (1) upper case letter, 1 lower case letter, 1 number and 1 special character.
-            Password must not contain the username, first or last name
-            Password must not contain dictionary words.
-            Password must not be the same with the last 6 previous passwords.'
-        ];
         $rules = [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:10', 'confirmed', 'regex:/^((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\\w\\s])).*$/'],
+            'password' => ['required', 'string', 'min:10', 'confirmed', 
+                            new PasswordNameCheck($data['first_name'], $data['last_name']),
+                            new PasswordRegex,
+                            // todo: FIX new PasswordDicCheck
+                          ],
         ];
-        return Validator::make($data, $rules, $messages);
+        return Validator::make($data, $rules);
     }
 
     /**
@@ -76,7 +74,8 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         return User::create([
-            'name' => $data['name'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
