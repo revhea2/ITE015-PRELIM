@@ -59,7 +59,7 @@ class RegisterController extends Controller
             'password' => ['required', 'string', 'min:10', 'confirmed', 
                             new PasswordNameCheck($data['first_name'], $data['last_name']),
                             new PasswordRegex,
-                            // todo: FIX new PasswordDicCheck
+                            new PasswordDicCheck
                           ],
         ];
         return Validator::make($data, $rules);

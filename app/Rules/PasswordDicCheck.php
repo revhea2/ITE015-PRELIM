@@ -26,24 +26,26 @@ class PasswordDicCheck implements Rule
      */
     public function passes($attribute, $value)
     {
-        $aspell = Aspell::create();
-        $words = "";
-
+        $dictionariesLoaded = array();
         for($i = 0; $i < strlen($value) - 3; $i++){
-            $substrCount = 0;
             for($j=0; $j+$i < strlen($value) - 3; $j++){
                 $word = substr($value, $j, $i+4);
                 $hasSpecialChar = preg_match("/^.*[^\w\s]+.*$/", $word);
                 $hasNumber = preg_match("/^.*\d+.*$/", $word);
+                // If-statements are nested to avoid potential unnecessary checking
                 if(!$hasSpecialChar && !$hasNumber){
-                    $words .= $word . " ";
-                    $substrCount++;
+                    // If the dictionary for the word's starting letter is not yet loaded, load it
+                    // otherwise, check it against the loaded dictionary
+                    if(!isset($dictionariesLoaded[$word[0]])){
+                        $file = file_get_contents(resource_path("words/words_alpha_".$word[0].".txt"));
+                        $dictionariesLoaded[$word[0]] = explode("\r\n", $file);
+                    } else if(in_array(strtolower($word), $dictionariesLoaded[$word[0]])){
+                        return false;
+                    }
                 }
             }
         }
-
-        $spellcheck = $aspell->check($words, ['en_US'], ['from_example']);
-        return $substrCount === sizeof($spellcheck);
+        return true;
     }
 
     /**
