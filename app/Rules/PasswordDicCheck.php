@@ -30,6 +30,8 @@ class PasswordDicCheck implements Rule
         for($i = 0; $i < strlen($value) - 3; $i++){
             for($j=0; $j+$i < strlen($value) - 3; $j++){
                 $word = substr($value, $j, $i+4);
+                echo $word;
+                echo '<br/>';
                 $hasSpecialChar = preg_match("/^.*[^\w\s]+.*$/", $word);
                 $hasNumber = preg_match("/^.*\d+.*$/", $word);
                 // If-statements are nested to avoid potential unnecessary checking
@@ -39,6 +41,7 @@ class PasswordDicCheck implements Rule
                     if(!isset($dictionariesLoaded[$word[0]])){
                         $file = file_get_contents(resource_path("words/words_alpha_".$word[0].".txt"));
                         $dictionariesLoaded[$word[0]] = explode("\r\n", $file);
+
                     } else if(in_array(strtolower($word), $dictionariesLoaded[$word[0]])){
                         return false;
                     }

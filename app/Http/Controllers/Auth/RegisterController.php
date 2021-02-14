@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SignupEmail;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use App\Rules\PasswordDicCheck;
@@ -11,6 +12,7 @@ use App\Rules\PasswordRegex;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -51,12 +53,12 @@ class RegisterController extends Controller
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
-    {   
+    {
         $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:10', 'confirmed', 
+            'password' => ['required', 'string', 'min:10', 'confirmed',
                             new PasswordNameCheck($data['first_name'], $data['last_name']),
                             new PasswordRegex,
                             new PasswordDicCheck
@@ -73,6 +75,8 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+
+        Mail::to($data['email'])->send(new SignupEmail($data));
         return User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
