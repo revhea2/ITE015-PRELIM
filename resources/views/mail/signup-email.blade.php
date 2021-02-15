@@ -6,8 +6,8 @@
 </head>
 
 <body>
-    <h1>Hi, {{$details['first_name']}}!</h1>
-    <h1>Welcome to fucker.net</h1>
-    <p>Thank you</p>
+<h1>Welcome, {{ $details['first_name'] }}!</h1>
+<img src="https://i.imgur.com/RKK6KaD.png" alt="Girl in a jacket">
+
 </body>
 </html>
